@@ -372,9 +372,9 @@ function toast(msg){
 
 async function loadStudents(){
   try{
-    const res = await window.storage.get(STORAGE_KEY, true);
-    students = res && res.value ? JSON.parse(res.value) : seedData();
-    if(!res){ await saveStudents(); }
+    const raw = localStorage.getItem(STORAGE_KEY);
+    students = raw ? JSON.parse(raw) : seedData();
+    if(!raw){ await saveStudents(); }
   }catch(e){
     students = seedData();
     await saveStudents();
@@ -395,7 +395,7 @@ function cryptoId(){
 
 async function saveStudents(){
   try{
-    await window.storage.set(STORAGE_KEY, JSON.stringify(students), true);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
   }catch(e){
     console.error("Falha ao salvar", e);
     toast("Não foi possível salvar. Tente novamente.");
