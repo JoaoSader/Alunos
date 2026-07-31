@@ -344,7 +344,27 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore, collection, onSnapshot,
+  addDoc, updateDoc, deleteDoc, doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBZwjp9B0vJ0LHtB2kIDNRhpps3T4EkD88",
+  authDomain: "dojo-alunos.firebaseapp.com",
+  projectId: "dojo-alunos",
+  storageBucket: "dojo-alunos.firebasestorage.app",
+  messagingSenderId: "1009769955949",
+  appId: "1:1009769955949:web:5059c2fc8445c26e96f564",
+  measurementId: "G-H9YHCMN2TY"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const alunosRef = collection(db, "alunos");
+
 const BELT_ORDER = ["Branca","Cinza","Azul","Amarela","Laranja","Verde","Roxa","Marrom","Preta"];
 const BELT_COLORS = {
   "Branca":  {bg:"var(--white-belt)", fg:"#4a4a45", strip:"var(--white-belt-b)"},
@@ -358,7 +378,6 @@ const BELT_COLORS = {
   "Preta":   {bg:"#e6e6e6", fg:"#111", strip:"var(--black-belt)"}
 };
 
-const STORAGE_KEY = "alunos-judo-lista";
 let students = [];
 let currentSort = "nome";
 let searchTerm = "";
@@ -370,37 +389,15 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'), 1600);
 }
 
-async function loadStudents(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    students = raw ? JSON.parse(raw) : seedData();
-    if(!raw){ await saveStudents(); }
-  }catch(e){
-    students = seedData();
-    await saveStudents();
-  }
+// Escuta o Firestore em tempo real: qualquer alteração feita em qualquer
+// aparelho atualiza a lista automaticamente aqui.
+onSnapshot(alunosRef, (snapshot)=>{
+  students = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
   render();
-}
-
-function seedData(){
-  return [
-    {id: cryptoId(), nome:"Exemplo Aluno 1", graduacao:"Branca", idade:8},
-    {id: cryptoId(), nome:"Exemplo Aluno 2", graduacao:"Azul", idade:12}
-  ];
-}
-
-function cryptoId(){
-  return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2,8);
-}
-
-async function saveStudents(){
-  try{
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(students));
-  }catch(e){
-    console.error("Falha ao salvar", e);
-    toast("Não foi possível salvar. Tente novamente.");
-  }
-}
+}, (err)=>{
+  console.error("Erro ao ler dados", err);
+  toast("Não foi possível carregar os dados.");
+});
 
 function sortStudents(list){
   const arr = [...list];
@@ -531,25 +528,33 @@ function openEdit(id){
     const graduacao = document.getElementById('fGraduacao').value;
     const idade = parseInt(document.getElementById('fIdade').value, 10);
     if(!nome || !idade){ return; }
-    if(s){
-      s.nome = nome; s.graduacao = graduacao; s.idade = idade;
-    }else{
-      students.push({id: cryptoId(), nome, graduacao, idade});
+    try{
+      if(s){
+        await updateDoc(doc(db, "alunos", s.id), { nome, graduacao, idade });
+      }else{
+        await addDoc(alunosRef, { nome, graduacao, idade });
+      }
+      closeOverlay();
+      toast(s ? "Aluno atualizado" : "Aluno adicionado");
+    }catch(err){
+      console.error("Falha ao salvar", err);
+      toast("Não foi possível salvar. Tente novamente.");
     }
-    await saveStudents();
-    render();
-    closeOverlay();
-    toast(s ? "Aluno atualizado" : "Aluno adicionado");
   });
 }
+window.openEdit = openEdit;
 
 async function deleteStudent(id){
-  students = students.filter(x=>x.id!==id);
-  await saveStudents();
-  render();
-  closeOverlay();
-  toast("Aluno removido");
+  try{
+    await deleteDoc(doc(db, "alunos", id));
+    closeOverlay();
+    toast("Aluno removido");
+  }catch(err){
+    console.error("Falha ao excluir", err);
+    toast("Não foi possível excluir. Tente novamente.");
+  }
 }
+window.deleteStudent = deleteStudent;
 
 document.getElementById('addBtn').addEventListener('click', ()=> openEdit(null));
 
@@ -566,8 +571,6 @@ document.getElementById('search').addEventListener('input', (e)=>{
   searchTerm = e.target.value;
   render();
 });
-
-loadStudents();
 </script>
 </body>
 </html>
