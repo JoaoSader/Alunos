@@ -3,8 +3,8 @@
      Variáveis (custom properties) — mesma identidade visual de antes
      =================================================================== */
   :root{
-    --tatami: #2d5940;
-    --tatami-dark: #1e3d2b;
+    --tatami: #1173a8;
+    --tatami-dark: #17b6e0;
     --gi: #f6f1e6;
     --gi-line: #e3dac7;
     --ink: #1c2620;
@@ -53,23 +53,17 @@
     grid-area:header;
     background:linear-gradient(160deg, var(--tatami) 0%, var(--tatami-dark) 100%);
     color:var(--gi);
-    padding:22px 18px 18px;
+    padding:15px 18px 18px;
     box-shadow:0 4px 14px rgba(0,0,0,0.18);
   }
-  .eyebrow{
-    font-size:11px;
-    letter-spacing:3px;
-    text-transform:uppercase;
-    color:#a9c9b3;
-    font-weight:600;
-    margin-bottom:4px;
-  }
+  
   h1{
     font-family:'Oswald','Arial Narrow', sans-serif;
     font-weight:700;
     font-size:28px;
     letter-spacing:0.5px;
     margin:0 0 14px 0;
+    
   }
   /* Flexbox (Tema 3, Aula 4) para alinhar os números lado a lado */
   .stats{
@@ -219,19 +213,7 @@
      Media query (Tema 4, Aula 4): a partir de 700px, abrimos o grid
      em duas colunas — lista de alunos + legenda lateral.
      =================================================================== */
-  @media screen and (min-width:700px){
-    .app-shell{
-      grid-template-columns:1fr 280px;
-      grid-template-areas:
-        "header header"
-        "toolbar toolbar"
-        "main legenda"
-        "footer footer";
-    }
-    aside.legenda{padding:16px 16px 16px 0;}
-    .legenda-grid{flex-direction:column;}
-  }
-
+  
   /* Botão flutuante de adicionar aluno */
   .fab{
     position:fixed;

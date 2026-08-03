@@ -14,11 +14,10 @@
 
   <!-- ================= HEADER (Aula 4, 1.1) ================= -->
   <header class="app-header">
-    <p class="eyebrow">Dojô · Controle de Faixas</p>
+    
     <h1>Lista de Alunos</h1>
     <div class="stats">
       <div><b id="statTotal">0</b>alunos</div>
-      <div><b id="statMedia">0</b>idade média</div>
     </div>
   </header>
 
@@ -28,7 +27,7 @@
       <input id="search" type="text" placeholder="Buscar aluno...">
     </div>
     <div class="sortbar">
-      <button class="sortbtn active" data-sort="nome">A–Z Nome</button>
+      <button class="sortbtn active" data-sort="nome">Nome</button>
       <button class="sortbtn" data-sort="graduacao">Faixa</button>
       <button class="sortbtn" data-sort="idade">Idade</button>
     </div>
@@ -39,11 +38,6 @@
     <section id="list" class="list" aria-live="polite"></section>
   </main>
 
-  <!-- ================= ASIDE (Aula 4, 1.5) — legenda das faixas ================= -->
-  <aside class="legenda">
-    <p class="legenda-titulo">Legenda das faixas</p>
-    <div id="legendaGrid" class="legenda-grid"></div>
-  </aside>
 
   <!-- ================= FOOTER (Aula 4, 1.6) ================= -->
   <footer class="app-footer">
@@ -116,8 +110,8 @@ const overlayEl  = document.querySelector("#overlay");
 const sheetEl    = document.querySelector("#sheet");
 const toastEl    = document.querySelector("#toast");
 const statTotal  = document.querySelector("#statTotal");
-const statMedia  = document.querySelector("#statMedia");
-const legendaEl  = document.querySelector("#legendaGrid");
+
+
 
 /* ======================================================================
    Função "arrow" (Aula 6, 2.4) — corpo curto, sem necessidade de return
@@ -143,23 +137,6 @@ const openOverlay = (html) => {
 };
 
 /* ======================================================================
-   Legenda das faixas (aside): usamos for...in (Aula 6, 1.1.2) para
-   iterar sobre o objeto BELT_COLORS e montar os "chips" de cor.
-   ====================================================================== */
-function montarLegenda(){
-  let html = "";
-  for (let faixa in BELT_COLORS){
-    const cor = BELT_COLORS[faixa];
-    html += `<span class="legenda-item">
-      <span class="legenda-dot" style="background:${cor.strip}"></span>
-      ${faixa}
-    </span>`;
-  }
-  legendaEl.innerHTML = html;
-}
-montarLegenda();
-
-/* ======================================================================
    Escuta o Firestore em tempo real (mantido igual ao original).
    ====================================================================== */
 onSnapshot(alunosRef, (snapshot) => {
@@ -180,10 +157,10 @@ function sortStudents(list){
   if (currentSort === "nome"){
     arr.sort((a,b) => a.nome.localeCompare(b.nome, "pt-BR"));
   } else if (currentSort === "graduacao"){
-    arr.sort((a,b) => BELT_ORDER.indexOf(a.graduacao) - BELT_ORDER.indexOf(b.graduacao)
+    arr.sort((a,b) => BELT_ORDER.indexOf(b.graduacao) - BELT_ORDER.indexOf(a.graduacao)
       || a.nome.localeCompare(b.nome, "pt-BR"));
   } else if (currentSort === "idade"){
-    arr.sort((a,b) => a.idade - b.idade || a.nome.localeCompare(b.nome, "pt-BR"));
+    arr.sort((a,b) => b.idade - a.idade || a.nome.localeCompare(b.nome, "pt-BR"));
   }
   return arr;
 }
@@ -208,7 +185,7 @@ function render(){
   for (let i = 0; i < students.length; i++){
     somaIdades += Number(students[i].idade || 0);
   }
-  statMedia.textContent = students.length ? Math.round(somaIdades / students.length) : 0;
+  
 
   if (data.length === 0){
     listEl.innerHTML = `<div class="empty"><b>Nenhum aluno encontrado</b>Toque no + para adicionar o primeiro aluno do dojô.</div>`;
