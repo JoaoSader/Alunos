@@ -14,10 +14,10 @@
   <h1>Lista de Alunos</h1>
   <div class="stats">
     <div><b id="statTotal">0</b>alunos</div>
-    <div><b id="statMedia">0</b>idade média</div>
+    
   </div>
   <div class="sortbar">
-    <button class="sortbtn active" data-sort="nome">A–Z Nome</button>
+    <button class="sortbtn active" data-sort="nome">Nome</button>
     <button class="sortbtn" data-sort="graduacao">Faixa</button>
     <button class="sortbtn" data-sort="idade">Idade</button>
   </div>
@@ -59,7 +59,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const alunosRef = collection(db, "alunos");
 
-const BELT_ORDER = ["Branca","Cinza","Azul","Amarela","Laranja","Verde","Roxa","Marrom","Preta"];
+const BELT_ORDER = ["Preta","Marrom","Roxa","Verde","Laranja","Amarela","Azul","Cinza","Branca"];
 const BELT_COLORS = {
   "Branca":  {bg:"var(--white-belt)", fg:"#4a4a45", strip:"var(--white-belt-b)"},
   "Cinza":   {bg:"#eceded", fg:"#4a4d50", strip:"var(--gray-belt)"},
@@ -114,8 +114,7 @@ function render(){
   }
 
   document.getElementById('statTotal').textContent = students.length;
-  const avg = students.length ? Math.round(students.reduce((s,x)=>s+Number(x.idade||0),0)/students.length) : 0;
-  document.getElementById('statMedia').textContent = avg;
+  
 
   if(data.length === 0){
     listEl.innerHTML = `<div class="empty"><b>Nenhum aluno encontrado</b>Toque no + para adicionar o primeiro aluno do dojô.</div>`;
