@@ -87,6 +87,14 @@ const formatarData = (dataISO) => {
   return `${d}/${m}/${y}`;
 };
 
+// Formata um telefone para (00) 000000000, mantendo só os dígitos
+const formatarTelefone = (tel) => {
+  if (!tel) return "-";
+  const digitos = tel.replace(/\D/g, "");
+  if (digitos.length !== 11) return tel;
+  return `(${digitos.slice(0, 2)}) ${digitos.slice(2)}`;
+};
+
 const toast = (msg) => {
   toastEl.textContent = msg;
   toastEl.classList.add("show");
@@ -212,9 +220,9 @@ function openDetail(id){
         <div class="val">${s.responsavelNome ? escapeHtml(s.responsavelNome) : "-"}</div>
       </div>
       <div class="detail-box">
-        <div class="lbl">Telefone</div>
-        <div class="val">${s.responsavelTelefone ? escapeHtml(s.responsavelTelefone) : "-"}</div>
-      </div>
+  <div class="lbl">Telefone</div>
+  <div class="val">${formatarTelefone(s.responsavelTelefone)}</div>
+</div>
     </div>
     ` : ""}
     <div class="sheet-actions">
@@ -295,7 +303,20 @@ function openEdit(id){
 
   dataNascInput.addEventListener("input", atualizarCamposResponsavel);
 
+  const respTelefoneInput = document.querySelector("#fRespTelefone");
+  respTelefoneInput.addEventListener("input", (event) => {
+    let digitos = event.target.value.replace(/\D/g, "").slice(0, 11);
+    if (digitos.length > 6){
+      event.target.value = `(${digitos.slice(0,2)}) ${digitos.slice(2,7)}-${digitos.slice(7)}`;
+    } else if (digitos.length > 2){
+      event.target.value = `(${digitos.slice(0,2)}) ${digitos.slice(2)}`;
+    } else {
+      event.target.value = digitos;
+    }
+  });
+
   const form = document.querySelector("#studentForm");
+  
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -308,7 +329,7 @@ function openEdit(id){
       ? document.querySelector("#fRespNome").value.trim()
       : "";
     const responsavelTelefone = idade !== null && idade < 18
-      ? document.querySelector("#fRespTelefone").value.trim()
+      ? document.querySelector("#fRespTelefone").value.replace(/\D/g, "")
       : "";
 
     if (!nome || !dataNascimento) return;
